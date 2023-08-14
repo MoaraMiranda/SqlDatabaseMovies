@@ -2,26 +2,67 @@ const { hash } = require("bcryptjs");
 const knex = require("../database/knex");
 
 const AppError = require("../utils/AppError");
-const connection = require("../database/knex");
+const {
+  validatePassword,
+  hashComplexity,
+  validateEmail,
+} = require("../utils/validations");
 
 class UsersController {
   async create(request, response) {
     const { name, email, password } = request.body;
 
-    const hashedPassword = await hash(password, 8);
+    const hashedPassword = await hash(password, hashComplexity);
+
+    const usersEmail = await knex("users").where({ email });
+
+    if (usersEmail.length > 0) {
+      throw new AppError("Email already registered");
+    }
+
     await knex("users").insert({
       name,
       email,
       password: hashedPassword,
     });
 
-    const checkUserExists = await knex.select("email").from("users")
+    response.status(201).json();
+  }
+
+  async update(request, response) {
+    const { name, email, newPassword, currentPassword } = request.body;
+    const { id } = request.params;
+
+    const user = await knex("users").where({ id }).first();
     
-    if (checkUserExists) {
-      throw new AppError("Email already registered");
+    if (!user) {
+      throw new AppError("User not found");
     }
 
-    response.status(201).json();
+    user.name = name ?? user.name;
+    user.email = email ?? user.email;
+    user.password = await validatePassword(
+      newPassword,
+      currentPassword,
+      user.password
+    );
+
+
+    const userEmailUpdated = await knex("users")
+      .where({ email: user.email })
+      .first();
+
+    if (userEmailUpdated) {
+      await validateEmail(userEmailUpdated.id, user.id);
+    }
+
+    await knex("users").where({ id }).update({
+      name: user.name,
+      email: user.email,
+      password: user.password,
+    });
+
+    return response.json();
   }
 }
 
