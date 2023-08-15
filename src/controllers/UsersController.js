@@ -6,14 +6,18 @@ const {
   validatePassword,
   hashComplexity,
   validateEmail,
+  fieldRequested,
 } = require("../utils/validations");
 
 class UsersController {
   async create(request, response) {
     const { name, email, password } = request.body;
 
-    const hashedPassword = await hash(password, hashComplexity);
+    if (!name) fieldRequested(name, "Name");
+    if (!email) fieldRequested(email, "Email");
+    if (!password) fieldRequested(password, "Password");
 
+    const hashedPassword = await hash(password, hashComplexity);
     const usersEmail = await knex("users").where({ email });
 
     if (usersEmail.length > 0) {
@@ -34,7 +38,7 @@ class UsersController {
     const { id } = request.params;
 
     const user = await knex("users").where({ id }).first();
-    
+
     if (!user) {
       throw new AppError("User not found");
     }
@@ -46,7 +50,6 @@ class UsersController {
       currentPassword,
       user.password
     );
-
 
     const userEmailUpdated = await knex("users")
       .where({ email: user.email })
@@ -61,6 +64,15 @@ class UsersController {
       email: user.email,
       password: user.password,
     });
+
+    return response.json();
+  }
+
+  async delete(request, response) {
+    const { name, email, password } = request.body;
+    const { id } = request.params;
+
+    await knex("users").where({ id }).del();
 
     return response.json();
   }
