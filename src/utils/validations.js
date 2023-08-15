@@ -2,6 +2,13 @@ const { hash, compare } = require("bcryptjs");
 const AppError = require("./AppError");
 
 const hashComplexity = 8;
+
+function fieldRequested(field, fieldName) {
+  if (!field) {
+    throw new AppError(`${fieldName} is required`);
+  }
+}
+
 async function validatePassword(
   userNewPassword,
   userCurrentPassword,
@@ -36,4 +43,9 @@ async function validateEmail(dbUserId, userId) {
   }
 }
 
-module.exports = { validatePassword, hashComplexity, validateEmail };
+module.exports = {
+  validatePassword,
+  hashComplexity,
+  validateEmail,
+  fieldRequested,
+};
