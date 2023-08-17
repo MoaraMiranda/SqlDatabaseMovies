@@ -1,9 +1,16 @@
 const knex = require("../database/knex");
+const AppError = require("../utils/AppError");
 
 class MovieNotesController {
   async create(request, response) {
     const { title, description, rating, tags } = request.body;
     const { user_id } = request.params;
+
+    const user = await knex("users").where({ id: user_id }).first();
+
+    if (!user) {
+      throw new AppError("User not found");
+    }
 
     const [movieNotes_id] = await knex("movieNotes").insert({
       title,
@@ -54,7 +61,7 @@ class MovieNotesController {
         .where("movieNotes.user_id", user_id)
         .whereLike("movieNotes.title", `%${title}%`)
         .whereIn("name", filteredTags)
-        .innerJoin("movieNotes", "movieNotes_id", "tags.movieNotes_id")
+        .innerJoin("movieNotes", "movieNotes.id", "tags.movieNotes_id")
         .orderBy("movieNotes.title");
     } else {
       notes = await knex("movieNotes")

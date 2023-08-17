@@ -50,7 +50,6 @@ class UsersController {
       currentPassword,
       user.password
     );
-
     const userEmailUpdated = await knex("users")
       .where({ email: user.email })
       .first();
