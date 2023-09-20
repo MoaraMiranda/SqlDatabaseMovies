@@ -30,7 +30,7 @@ class UsersController {
       password: hashedPassword,
     });
 
-    response.status(201).json();
+    return response.status(201).json();
   }
 
   async update(request, response) {
