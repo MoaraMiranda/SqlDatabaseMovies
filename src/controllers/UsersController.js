@@ -35,7 +35,7 @@ class UsersController {
 
   async update(request, response) {
     const { name, email, newPassword, currentPassword } = request.body;
-    const { id } = request.params;
+    const id = request.user.id;
 
     const user = await knex("users").where({ id }).first();
 
@@ -69,9 +69,9 @@ class UsersController {
 
   async delete(request, response) {
     const { name, email, password } = request.body;
-    const { id } = request.params;
+    const user_id = request.user.id;
 
-    await knex("users").where({ id }).del();
+    await knex("users").where({ user_id }).del();
 
     return response.json();
   }
