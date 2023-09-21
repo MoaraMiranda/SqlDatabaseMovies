@@ -6,6 +6,6 @@ const TagsController = require("../controllers/TagsController");
 const tagsRoute = Router();
 const tagsController = new TagsController();
 
-tagsRoute.get("/",ensureAuthenticated, tagsController.index);
+tagsRoute.get("/", ensureAuthenticated, tagsController.index);
 
 module.exports = tagsRoute;
