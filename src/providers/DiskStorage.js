@@ -21,7 +21,7 @@ class DiskStorage {
       return;
     }
 
-    await fs.promises.unlink(filePath)
+    await fs.promises.unlink(filePath);
   }
 }
 
