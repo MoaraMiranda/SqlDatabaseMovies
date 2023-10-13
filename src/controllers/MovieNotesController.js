@@ -3,7 +3,6 @@ const AppError = require("../utils/AppError");
 
 class MovieNotesController {
   async create(request, response) {
-  
     const { title, description, rating, tags } = request.body;
     const user_id = request.user.id;
 
@@ -53,7 +52,7 @@ class MovieNotesController {
 
   async index(request, response) {
     // recebimento e tratamento de dados
-    const { search } = request.query; 
+    const { search } = request.query;
     const user_id = request.user.id;
     const searchParsed = search.toLowerCase().trim();
 
@@ -69,8 +68,9 @@ class MovieNotesController {
       .where("user_id", user_id)
       .whereLike("name", `%${searchParsed}%`);
 
-    const moviesIds = [...movies, ...tags]
-      .map((item) => item.id || item.movieNotes_id)
+    const moviesIds = [...movies, ...tags].map(
+      (item) => item.id || item.movieNotes_id
+    );
 
     const notes = await knex("tags")
       .select(["movieNotes.id", "movieNotes.title", "movieNotes.user_id"])
@@ -79,7 +79,7 @@ class MovieNotesController {
       .whereIn("movieNotes.id", moviesIds)
       .innerJoin("movieNotes", "movieNotes.id", "tags.movieNotes_id")
       .orderBy("movieNotes.title");
-    
+
     const userTags = await knex("tags").where({ user_id });
     const notesWithTags = notes.map((note) => {
       const noteTags = userTags.filter((tag) => tag.movieNotes_id === note.id);
