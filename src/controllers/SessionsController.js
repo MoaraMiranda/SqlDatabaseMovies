@@ -25,7 +25,6 @@ class SessionsController {
       subject: String(user.id),
       expiresIn,
     });
-
     return response.json({ user, token });
   }
 }

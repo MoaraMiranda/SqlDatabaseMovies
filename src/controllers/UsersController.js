@@ -63,7 +63,6 @@ class UsersController {
       email: user.email,
       password: user.password,
     });
-
     return response.json();
   }
 

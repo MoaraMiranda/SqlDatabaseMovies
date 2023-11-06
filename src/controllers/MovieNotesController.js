@@ -28,7 +28,6 @@ class MovieNotesController {
     });
     await knex("tags").insert(tagsInsert);
 
-    console.log("entrou aqui", response.json());
 
     return response.json();
   }
@@ -54,7 +53,7 @@ class MovieNotesController {
     // recebimento e tratamento de dados
     const { search } = request.query;
     const user_id = request.user.id;
-    const searchParsed = search.toLowerCase().trim();
+    const searchParsed = search ? search.toLowerCase().trim() : "";
 
     // busca de dados no banco
     const movies = await knex("movieNotes")
@@ -73,12 +72,19 @@ class MovieNotesController {
     );
 
     const notes = await knex("tags")
-      .select(["movieNotes.id", "movieNotes.title", "movieNotes.user_id"])
+      .select([
+        "movieNotes.id",
+        "movieNotes.title",
+        "movieNotes.user_id",
+        "movieNotes.description",
+        "movieNotes.rating",
+      ])
       .groupBy("movieNotes_id")
       .where("movieNotes.user_id", user_id)
       .whereIn("movieNotes.id", moviesIds)
       .innerJoin("movieNotes", "movieNotes.id", "tags.movieNotes_id")
       .orderBy("movieNotes.title");
+
 
     const userTags = await knex("tags").where({ user_id });
     const notesWithTags = notes.map((note) => {
