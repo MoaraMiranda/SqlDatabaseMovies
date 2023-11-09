@@ -12,8 +12,8 @@ class UserRepository {
       email,
       password,
     });
-    return {id: userId};
+    return { id: userId };
   }
 }
 
- module.exports = UserRepository;
+module.exports = UserRepository;
