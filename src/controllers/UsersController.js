@@ -2,33 +2,18 @@ const { hash } = require("bcryptjs");
 const knex = require("../database/knex");
 
 const AppError = require("../utils/AppError");
-const {
-  validatePassword,
-  hashComplexity,
-  validateEmail,
-  fieldRequested,
-} = require("../utils/validations");
+const UserRepository = require("../repositories/UserRepository");
+const UserCreateService = require("../services/UserCreateService");
+const { validatePassword, validateEmail } = require("../utils/validations");
 
 class UsersController {
   async create(request, response) {
     const { name, email, password } = request.body;
 
-    if (!name) fieldRequested(name, "Name");
-    if (!email) fieldRequested(email, "Email");
-    if (!password) fieldRequested(password, "Password");
+    const userRepository = new UserRepository();
+    const userCreateService = new UserCreateService(userRepository);
 
-    const hashedPassword = await hash(password, hashComplexity);
-    const usersEmail = await knex("users").where({ email });
-
-    if (usersEmail.length > 0) {
-      throw new AppError("Email already registered");
-    }
-
-    await knex("users").insert({
-      name,
-      email,
-      password: hashedPassword,
-    });
+    await userCreateService.execute({ name, email, password });
 
     return response.status(201).json();
   }
